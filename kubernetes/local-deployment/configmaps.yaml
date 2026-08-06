@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: api-config
 data:
-  POSTGRES_HOST: postgres
+  POSTGRES_HOST: project_postgres
   POSTGRES_PORT: "5432"
-  POSTGRES_DB: project_db
+  POSTGRES_DB: healthsecure
   OPENAI_CHAT_MODEL: gpt-4.1-mini
   OPENAI_EMBEDDING_MODEL: text-embedding-3-small
