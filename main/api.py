@@ -1,16 +1,24 @@
-from datetime import datetime
 import logging
+import os
+import time
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict
 from pydantic import BaseModel, Field, field_validator
-
 from sqlalchemy import text
 
 from app.agent import agent
 from app.calculate_cost import calculate_cost
-from app.database import engine, initialize_database
+from app.database import (
+    engine,
+    initialize_database,
+    build_conversation_record,
+    build_feedback_record,
+    insert_conversation,
+    insert_feedback,
+)
 
 from contextlib import asynccontextmanager
 
@@ -64,6 +72,11 @@ class FeedbackRequest(BaseModel):
     question: str
     response: str
     rating: str
+    conversation_id: int | None = None
+    source: str = "ui"
+    relevance: str | None = None
+    explanation: str | None = None
+    score: int | None = None
 
 @app.get("/api/healthcheck")
 def health():
@@ -105,11 +118,13 @@ def chat(request: QuestionRequest):
 
         health_agent = agent()
 
+        started_at = time.perf_counter()
         response = health_agent.invoke(
             {
                 "messages": messages
             }
         )
+        response_time = round(time.perf_counter() - started_at, 6)
 
         logger.info(
             "Agent execution completed successfully"
@@ -124,22 +139,50 @@ def chat(request: QuestionRequest):
             "output_tokens",
             0
         )
+        total_tokens = input_tokens + output_tokens
 
         cost = calculate_cost(
             input_tokens,
             output_tokens
         )
 
+        answer = response["messages"][-1].content
+        instructions = response["messages"][-1].response_metadata.get(
+            "model_name",
+            ""
+        )
+        prompt = str(messages)
+
+        conversation_record = build_conversation_record(
+            question=request.message,
+            answer=answer,
+            model=os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini"),
+            instructions=instructions,
+            prompt=prompt,
+            prompt_tokens=input_tokens,
+            completion_tokens=output_tokens,
+            total_tokens=total_tokens,
+            response_time=response_time,
+            cost=cost,
+            timestamp=datetime.now(timezone.utc),
+        )
+
+        with engine.begin() as conn:
+            conversation_id = insert_conversation(conn, conversation_record)
+
         logger.info(
-            "Request completed. Input tokens: %s, Output tokens: %s, Cost: %.6f",
+            "Request completed. Input tokens: %s, Output tokens: %s, Cost: %.6f, Response time: %.6f, Conversation id: %s",
             input_tokens,
             output_tokens,
-            cost
+            cost,
+            response_time,
+            conversation_id,
         )
 
         return {
-            "response": response["messages"][-1].content,
-            "cost": cost
+            "response": answer,
+            "cost": cost,
+            "conversation_id": conversation_id,
         }
 
     except Exception:
@@ -159,38 +202,22 @@ def save_feedback(feedback: FeedbackRequest):
         feedback.rating
     )
 
-    sql = """
-    INSERT INTO feedbacks
-    (
-        question,
-        response,
-        rating
-    )
-    VALUES
-    (
-        :question,
-        :response,
-        :rating
-    )
-    """
-
     try:
-
         with engine.begin() as conn:
-
-            conn.execute(
-                text(sql),
-                {
-                    "question": feedback.question,
-                    "response": feedback.response,
-                    "rating": feedback.rating
-                }
+            feedback_record = build_feedback_record(
+                conversation_id=feedback.conversation_id,
+                source=feedback.source,
+                relevance=feedback.relevance,
+                explanation=feedback.explanation,
+                score=feedback.score,
+                timestamp=datetime.now(timezone.utc),
             )
+
+            insert_feedback(conn, feedback_record)
 
         logger.info(
             "Feedback saved successfully"
         )
-
 
         return {
             "message": "Feedback saved successfully"
@@ -204,4 +231,48 @@ def save_feedback(feedback: FeedbackRequest):
         raise HTTPException(
             status_code=500,
             detail="Unable to save feedback"
+        )
+
+
+@app.get("/api/monitoring")
+def monitoring(limit: int = 20):
+    logger.info("Fetching recent monitoring data with limit=%s", limit)
+
+    sql = """
+    SELECT
+        c.id,
+        c.question,
+        c.answer,
+        c.model,
+        c.prompt_tokens,
+        c.completion_tokens,
+        c.total_tokens,
+        c.response_time,
+        c.cost,
+        c.timestamp,
+        f.id AS feedback_id,
+        f.source,
+        f.relevance,
+        f.explanation,
+        f.score,
+        f.timestamp AS feedback_timestamp
+    FROM conversations c
+    LEFT JOIN feedbacks f ON f.conversation_id = c.id
+    ORDER BY c.timestamp DESC, f.id DESC
+    LIMIT :limit
+    """
+
+    try:
+        with engine.begin() as conn:
+            rows = conn.execute(text(sql), {"limit": limit}).mappings().all()
+
+        return {
+            "count": len(rows),
+            "items": [dict(row) for row in rows],
+        }
+    except Exception:
+        logger.exception("Failed to fetch monitoring data")
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to fetch monitoring data"
         )

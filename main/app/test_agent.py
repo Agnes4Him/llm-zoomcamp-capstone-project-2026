@@ -1,4 +1,12 @@
+import logging
+
 import requests
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 API_URL_LOCAL = "http://localhost:5000/api"
 API_URL_LOCAL_K8S = "http://localhost:30080/api"
@@ -60,6 +68,7 @@ def chat():
             result = response.json()
 
             assistant_message = result["response"]
+            conversation_id = result.get("conversation_id")
 
             conversation.append(
                 {
@@ -77,6 +86,7 @@ def chat():
 
             print("\nAssistant:", assistant_message)
             print("Cost:", result.get("cost", 0))
+            logger.info("Conversation ID: %s", conversation_id)
 
             rating = input(
                 "\nWas this response helpful? (yes/no): "
@@ -98,7 +108,12 @@ def chat():
                     json={
                         "question": user_input,
                         "response": assistant_message,
-                        "rating": rating
+                        "rating": rating,
+                        "conversation_id": conversation_id,
+                        "source": "test_agent",
+                        "relevance": "medium",
+                        "explanation": "Feedback submitted from test_agent",
+                        "score": 5 if rating == "positive" else 1
                     },
                     timeout=10
                 )

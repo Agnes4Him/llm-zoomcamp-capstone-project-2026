@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: project-postgres
+    container_name: project_postgres
     restart: always
     env_file:
       - .env
@@ -16,7 +16,7 @@ services:
       retries: 5
 
   api:
-    image: agnes4im/llm-project-api:1.0.0
+    image: agnes4im/llm-api:1.0.0
     build:
       context: .
     ports:
