@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: agnes4im/llm-project-api:1.0.0
+          image: agnes4im/llm-api:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000

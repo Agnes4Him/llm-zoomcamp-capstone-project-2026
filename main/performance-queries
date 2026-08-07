@@ -23,7 +23,7 @@ LIMIT 50;
 
 ## Average cost, latency, token usage over time
 SELECT
-  DATE(timestamp) AS day,
+  DATE("timestamp") AS day,
   COUNT(*) AS conversations,
   ROUND(AVG(response_time), 4) AS avg_response_time,
   ROUND(AVG(cost), 8) AS avg_cost,
@@ -32,7 +32,7 @@ SELECT
   ROUND(AVG(total_tokens), 1) AS avg_total_tokens,
   SUM(cost) AS total_cost
 FROM conversations
-GROUP BY DATE(timestamp)
+GROUP BY DATE("timestamp")
 ORDER BY day DESC
 LIMIT 30;
 

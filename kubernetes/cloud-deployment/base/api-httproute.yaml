@@ -6,7 +6,8 @@ metadata:
 
 spec:
   parentRefs:
-    - name: gateway
+    - name: api-gateway
+      namespace: api
 
   rules:
     - matches:
