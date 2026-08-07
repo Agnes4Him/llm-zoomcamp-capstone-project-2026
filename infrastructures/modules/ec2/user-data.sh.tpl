@@ -39,7 +39,10 @@ do
 done
 
 echo "Installing AWS CLI"
-apt-get install -y awscli
+if ! command -v aws >/dev/null 2>&1; then
+    snap install aws-cli --classic
+fi
+aws --version
 
 echo "Creating api namespace"
 kubectl create namespace api --dry-run=client -o yaml | kubectl apply -f -

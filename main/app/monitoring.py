@@ -3,7 +3,7 @@ import sys
 
 import requests
 
-API_URL = "http://127.0.0.1:5000/api/monitoring"
+API_URL = "http://localhost:5000/api/monitoring"
 
 def fetch_monitoring(limit: int) -> dict:
     try:
