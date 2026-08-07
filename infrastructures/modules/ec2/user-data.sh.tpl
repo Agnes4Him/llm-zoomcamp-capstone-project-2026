@@ -82,6 +82,29 @@ kubectl rollout status deployment/traefik \
 -n traefik \
 --timeout=300s
 
+echo "Waiting for Traefik Gateway..."
+until kubectl get gateway traefik-gateway -n traefik >/dev/null 2>&1; do
+  sleep 5
+done
+echo "Traefik Gateway found"
+
+echo "Updating traefik-gateway Gateway..."
+kubectl patch gateway traefik-gateway \
+  -n traefik \
+  --type='json' \
+  -p='[
+    {
+      "op": "replace",
+      "path": "/spec/listeners/0/allowedRoutes/namespaces/from",
+      "value": "All"
+    },
+    {
+      "op": "replace",
+      "path": "/spec/listeners/1/allowedRoutes/namespaces/from",
+      "value": "All"
+    }
+  ]'
+
 echo "Installing External Secrets Operator"
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
