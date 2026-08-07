@@ -6,8 +6,8 @@ metadata:
 
 spec:
   parentRefs:
-    - name: api-gateway
-      namespace: api
+    - name: traefik-gateway
+      namespace: traefik
 
   rules:
     - matches:
