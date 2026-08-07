@@ -25,11 +25,11 @@ LIMIT 50;
 SELECT
   DATE("timestamp") AS day,
   COUNT(*) AS conversations,
-  ROUND(AVG(response_time), 4) AS avg_response_time,
-  ROUND(AVG(cost), 8) AS avg_cost,
-  ROUND(AVG(prompt_tokens), 1) AS avg_prompt_tokens,
-  ROUND(AVG(completion_tokens), 1) AS avg_completion_tokens,
-  ROUND(AVG(total_tokens), 1) AS avg_total_tokens,
+  ROUND(AVG(response_time)::numeric, 4) AS avg_response_time,
+  ROUND(AVG(cost)::numeric, 8) AS avg_cost,
+  ROUND(AVG(prompt_tokens)::numeric, 1) AS avg_prompt_tokens,
+  ROUND(AVG(completion_tokens)::numeric, 1) AS avg_completion_tokens,
+  ROUND(AVG(total_tokens)::numeric, 1) AS avg_total_tokens,
   SUM(cost) AS total_cost
 FROM conversations
 GROUP BY DATE("timestamp")
@@ -40,11 +40,11 @@ LIMIT 30;
 SELECT
   model,
   COUNT(*) AS calls,
-  ROUND(AVG(response_time), 4) AS avg_response_time,
-  ROUND(MAX(response_time), 4) AS max_response_time,
-  ROUND(AVG(cost), 8) AS avg_cost,
+  ROUND(AVG(response_time)::numeric, 4) AS avg_response_time,
+  ROUND(MAX(response_time)::numeric, 4) AS max_response_time,
+  ROUND(AVG(cost)::numeric, 8) AS avg_cost,
   SUM(cost) AS total_cost,
-  ROUND(AVG(total_tokens), 1) AS avg_total_tokens
+  ROUND(AVG(total_tokens)::numeric, 1) AS avg_total_tokens
 FROM conversations
 GROUP BY model
 ORDER BY total_cost DESC;
@@ -79,7 +79,7 @@ LIMIT 20;
 SELECT
   source,
   COUNT(*) AS feedback_count,
-  ROUND(AVG(score), 2) AS avg_score,
+  ROUND(AVG(score)::numeric, 2) AS avg_score,
   MIN(score) AS min_score,
   MAX(score) AS max_score
 FROM feedbacks
@@ -130,8 +130,8 @@ LIMIT 50;
 SELECT
   c.model,
   COUNT(*) AS feedback_count,
-  ROUND(AVG(f.score), 2) AS avg_score,
-  ROUND(AVG(c.cost), 8) AS avg_cost
+  ROUND(AVG(f.score)::numeric, 2) AS avg_score,
+  ROUND(AVG(c.cost)::numeric, 8) AS avg_cost
 FROM conversations c
 JOIN feedbacks f
   ON f.conversation_id = c.id
