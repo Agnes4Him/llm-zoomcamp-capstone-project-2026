@@ -3,7 +3,10 @@ import sys
 
 import requests
 
-API_URL = "http://localhost:5000/api/monitoring"
+API_URL_LOCAL = "http://localhost/api"
+API_URL_CLOUD_K8S = "http://18.175.239.80/api"
+
+API_URL = f"{API_URL_CLOUD_K8S}/monitoring"
 
 def fetch_monitoring(limit: int) -> dict:
     try:

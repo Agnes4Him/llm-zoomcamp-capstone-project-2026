@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 API_URL_LOCAL = "http://localhost:5000/api"
 API_URL_LOCAL_K8S = "http://localhost:30080/api"
-API_URL_CLOUD_K8S = "http://<EC2_PUBLIC_IP>:5000/api"
+API_URL_CLOUD_K8S = "http://18.175.239.80/api"
 
-API_URL = API_URL_LOCAL_K8S    # Change this to the appropriate URL based on your deployment
+API_URL = API_URL_CLOUD_K8S    # Change this to the appropriate URL based on your deployment
 
 QUESTION_URL = f"{API_URL}/question"
 FEEDBACK_URL = f"{API_URL}/feedback"
@@ -85,8 +85,7 @@ def chat():
             )
 
             print("\nAssistant:", assistant_message)
-            print("Cost:", result.get("cost", 0))
-            logger.info("Conversation ID: %s", conversation_id)
+            # print("Cost:", result.get("cost", 0))
 
             rating = input(
                 "\nWas this response helpful? (yes/no): "
