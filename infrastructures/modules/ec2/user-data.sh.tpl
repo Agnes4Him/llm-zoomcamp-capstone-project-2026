@@ -82,29 +82,6 @@ kubectl rollout status deployment/traefik \
 -n traefik \
 --timeout=300s
 
-echo "Waiting for Traefik Gateway..."
-until kubectl get gateway traefik-gateway -n traefik >/dev/null 2>&1; do
-  sleep 5
-done
-echo "Traefik Gateway found"
-
-echo "Updating traefik-gateway Gateway..."
-kubectl patch gateway traefik-gateway \
-  -n traefik \
-  --type='json' \
-  -p='[
-    {
-      "op": "replace",
-      "path": "/spec/listeners/0/allowedRoutes/namespaces/from",
-      "value": "All"
-    },
-    {
-      "op": "replace",
-      "path": "/spec/listeners/1/allowedRoutes/namespaces/from",
-      "value": "All"
-    }
-  ]'
-
 echo "Installing External Secrets Operator"
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
@@ -140,6 +117,10 @@ cat <<EOF >/opt/bootstrap/kustomization.yaml
 ${flux_kustomization}
 EOF
 
+cat <<EOF >/opt/bootstrap/gateway.yaml
+${gateway}
+EOF
+
 cat <<EOF >/opt/bootstrap/grafana-namespace.yaml
 ${grafana_namespace}
 EOF
@@ -159,6 +140,9 @@ EOF
 echo "Applying Flux OCI GitOps"
 kubectl apply -f /opt/bootstrap/oci-repository.yaml
 kubectl apply -f /opt/bootstrap/kustomization.yaml
+
+echo "Applying Gateway"
+kubectl apply -f /opt/bootstrap/gateway.yaml
 
 echo "Applying Grafana"
 kubectl apply -f /opt/bootstrap/grafana-namespace.yaml
