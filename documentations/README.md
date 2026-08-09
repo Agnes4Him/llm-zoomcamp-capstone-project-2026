@@ -210,9 +210,7 @@ docker-compose down
 
 Watch demo...
 
-<video src="./videos/local-deployment.mp4" controls width="800">
-  Your browser does not support the video tag.
-</video>
+[![Local deployment demo](https://img.youtube.com/vi/8-E-FDB6fiM/0.jpg)](https://www.youtube.com/watch?v=8-E-FDB6fiM)
 
 
 ### 3) Local deployment with Kind Kubernetes
@@ -244,9 +242,7 @@ kubectl get pods,svc -n default
 
 Watch demo...
 
-<video src="./videos/local-deployment-k8s.mp4" controls width="800">
-  Your browser does not support the video tag.
-</video>
+[![Kubernetes deployment demo](https://img.youtube.com/vi/VIDEO_ID_2/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_2)
 
 
 ### 3) Cloud deployment with k3s
@@ -352,10 +348,7 @@ This will only work if you've configured Terraform to use remote backend
 
 Watch demo...
 
-<video src="./videos/cloud-deployment.mp4" controls width="800">
-  Your browser does not support the video tag.
-</video>
-
+[![Cloud deployment demo](https://img.youtube.com/vi/VIDEO_ID_3/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_3)
 
 ---
 
