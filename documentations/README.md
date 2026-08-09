@@ -242,7 +242,7 @@ kubectl get pods,svc -n default
 
 Watch demo...
 
-[![Kubernetes deployment demo](https://img.youtube.com/vi/VIDEO_ID_2/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_2)
+[![Local deployment with K8s demo](https://img.youtube.com/vi/9HTx5U62ojc/0.jpg)](https://www.youtube.com/watch?v=9HTx5U62ojc)
 
 
 ### 3) Cloud deployment with k3s

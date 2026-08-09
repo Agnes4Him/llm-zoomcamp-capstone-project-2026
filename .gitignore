@@ -59,4 +59,4 @@ main/data/
 
 kubernetes/local-deployment/secrets-ignored.yaml
 
-documentations/videos/*
+documentations/videos
