@@ -267,15 +267,15 @@ Follow the steps below to setup the Cloud Infrastructure and environment to depl
 
 * Move all environments variables into this secret as JSON. See images below
 
-![AWS Secrets Manager Console](PLACEHOLDER_IMAGE_URL)
+![AWS Secrets Manager Console](./images/secrets-manager1.png)
 
 ===================================================================================================
 
-![Select Secret Type](PLACEHOLDER_IMAGE_URL)
+![Select Secret Type](./images/secrets-manager2.png)
 
 ===================================================================================================
 
-![Store Env Variables as JSON](PLACEHOLDER_IMAGE_URL)
+![Store Env Variables as JSON](./images/secrets-manager3.png)
 
 * Create an S3 bucket tp serve as Remote backend for Terraform. Details of the bucket can be found
 in Terraform `provisioners.tf` file
