@@ -1,4 +1,4 @@
-## Sample Questions
+## Sample Questions for the Agent
 What benefits are included in my plan?
 
 Does my plan cover dental treatment?

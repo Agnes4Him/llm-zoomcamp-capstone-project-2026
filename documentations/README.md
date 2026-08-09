@@ -8,19 +8,16 @@ HealthSecure AI is an intelligent assistant for a fictional insurance company. I
 - a retriever-augmented generation (RAG) flow built with Pinecone and LangChain,
 - a FastAPI service for question answering, feedback, and monitoring.
 
-The system is designed to answer insurance-related questions, retrieve policy details, and answer member-specific inquiries such as claim status.
-
-> Placeholder screenshot: `![App preview](PLACEHOLDER_IMAGE_URL)`
-> Placeholder demo video: `https://example.com/your-demo-video`
+The system is designed to answer insurance-related questions, retrieve policy details, and answer member and non-member-specific inquiries such as claim status, enrollment, plans, e.t.c.
 
 ---
 
 ## What this project solves
-Insurance systems have many policies, procedures, and member-specific rules. HealthSecure AI helps users:
+Insurance systems have many policies, procedures, and member-specific rules, and documents to address questions from the general public. HealthSecure AI helps users:
 
 - search policy documents without reading everything,
 - ask questions in natural language,
-- retrieve member and claim status via tools,
+- retrieve member details via tools,
 - collect user feedback,
 - monitor system performance and cost.
 
@@ -30,20 +27,20 @@ This is a hybrid solution: an LLM powers the assistant, a vector store enables r
 
 ## What is implemented
 
-- **Knowledge-base retrieval** using Pinecone vector embeddings from OpenAI embedding models.
+- **Knowledge-base retrieval** using Pinecone vector database and OpenAI embedding models.
 - **RAG flow** via `main/app/rag.py` and `main/app/rag_helper.py`.
 - **Agent tooling** with three tools in `main/app/tools.py`:
   - `search_knowledge_base`
   - `get_member`
   - `get_claim_status`
 - **LLM backend** configured in `main/app/llm.py` using OpenAI chat models.
+- **PostgreSQL persistence** in `main/scripts/init_postgres_db.sql`.
 - **FastAPI API** in `main/api.py` for question answering, feedback submission, and monitoring.
-- **PostgreSQL persistence** for conversations and feedback in `main/scripts/init_postgres_db.sql`.
 - **Local development** support with `main/docker-compose.yaml`.
-- **Kubernetes manifests** for local Kind deploy and cloud deployment in `kubernetes/`.
+- **Kubernetes manifests** for local `Kind cluster` and cloud deployment in `kubernetes/`.
 - **Cloud infrastructure** bootstrapped via Terraform in `infrastructures/`.
 - **Monitoring** via feedback collection, a simple monitoring endpoint, and Grafana manifests.
-
+- **CI/CD Pipelines** with GitHub Actions for the automated provisioning of Cloud Infrastructures, and the build and push of the API Docker image to then be pulled into Cloud-provisioned Kubernetes cluster through FluxCD.
 ---
 
 ## Evaluation criteria mapping
@@ -61,14 +58,13 @@ This is a hybrid solution: an LLM powers the assistant, a vector store enables r
 | Reproducibility | ✅ | `pyproject.toml`, env guidance, and deployment paths included. |
 | Bonus / cloud | ✅ | Cloud deployment scaffolded using Terraform + k3s + Flux. |
 
-> Notes: This README is intended to replace `README2.md` as the main project documentation.
-
 ---
 
 ## Repository structure
 
-- `main/` - primary application code and runtime files
+- `main/` - primary application code and runtime files. UV is initialized here
   - `api.py` — FastAPI service entrypoint
+  - `Dockerfile`
   - `docker-compose.yaml` — local service stack (Postgres, API, Grafana)
   - `pyproject.toml` — Python dependencies
   - `app/` — core app logic
@@ -79,63 +75,13 @@ This is a hybrid solution: an LLM powers the assistant, a vector store enables r
     - `database.py` — Postgres engine and schema helpers
     - `ingest.py` — knowledge-base ingestion
     - `llm.py` — LLM creation
-- `main/scripts/` — database initialization SQL
-- `main/knowledge-base/` — insurance knowledge documents
+    - `test_agent.py` - for interacting with the agent via the terminal
+    - `test_monitoring` - contains queries that retrieve monitoring data stored in database
+  - `scripts/` — database initialization SQL script
+  - `knowledge-base/` — insurance knowledge documents
 - `kubernetes/` — Kubernetes deployment manifests
 - `infrastructures/` — Terraform cloud infrastructure
-
----
-
-## Key demo modes
-
-### 1) Local deployment without Kubernetes
-
-Ingest the knowledge base:
-
-```bash
-cd main
-uv run python -c "from app.ingest import add_documents_to_vectorstore; add_documents_to_vectorstore()"
-```
-
-This is the fastest path to run the API locally.
-
-```bash
-cd main
-uv run uvicorn api:app --host 0.0.0.0 --port 5000 --reload
-```
-
-Load the DB schema automatically by starting the API, because `main/api.py` runs `initialize_database()` on startup.
-
-### 2) Local deployment with Kind Kubernetes
-
-1. Create the Kind cluster:
-
-```bash
-kind create cluster --name llm-project --config kubernetes/supporting-services/kind/kind-config.yaml
-```
-
-2. Apply local manifests:
-
-```bash
-kubectl apply -f kubernetes/local-deployment/
-```
-
-3. Optionally inspect services:
-
-```bash
-kubectl get pods,svc -n default
-```
-
-### 3) Cloud deployment with k3s
-
-The project includes cloud bootstrap support for k3s via Terraform and EC2 user-data.
-
-The EC2 bootstrap script is in:
-- `infrastructures/modules/ec2/user-data.sh.tpl`
-
-It installs k3s, Traefik, External Secrets Operator, Flux, and Grafana.
-
-> Placeholder cloud demo video: `https://example.com/cloud-demo`
+- `.github` - stores pipeline workflows for infrastructures and FastAPI
 
 ---
 
@@ -146,13 +92,14 @@ It installs k3s, Traefik, External Secrets Operator, Flux, and Grafana.
 - Python 3.14+
 - Docker / Docker Compose
 - `uv` CLI (`pip install uv`) or Python environment with `uvicorn`
-- Postgres (local or via Docker Compose)
-- `kubectl` for Kubernetes deployments
+- Postgres (local or via Docker Compose - Amazon RDS for PostgreSQL was used in Cloud Deployment)
+- `kubectl` for Kubernetes deployments (comes with Docker if installed as Docker Desktop on Windows)
 - `kind` for local K8s cluster
 - `k3s` for cloud K8s deployment
 - Terraform for cloud infrastructure
 - Pinecone account and API key
 - OpenAI API key
+- AWS account and IAM credentials for admnistrator access (can be more scoped to limit access)
 
 ### Environment variables
 
@@ -169,138 +116,12 @@ Create `main/.env` with values for:
 - `POSTGRES_PASSWORD`
 - `POSTGRES_DB`
 - `GF_SECURITY_ADMIN_PASSWORD` (for Grafana)
-- `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` for cloud deployment
 
 Do not commit secrets to git.
 
-### Install dependencies
+## Initial testing
 
-```bash
-cd main
-uv install
-```
-
-Or with pip:
-
-```bash
-cd main
-python -m pip install -r requirements.txt
-```
-
-### Initialize the database
-
-Start the API once, and the DB schema is created automatically.
-
-```bash
-cd main
-uv run uvicorn api:app --host 0.0.0.0 --port 5000 --reload
-```
-
-If you need an explicit SQL initialization step:
-
-```bash
-cd main
-uv run python -c "from app.database import initialize_database; initialize_database()"
-```
-
-### Ingest documents into Pinecone
-
-```bash
-cd main
-uv run python -c "from app.ingest import add_documents_to_vectorstore; add_documents_to_vectorstore()"
-```
-
----
-
-## Running the application
-
-### Start locally with Docker Compose
-
-```bash
-cd main
-docker-compose up -d
-```
-
-This starts:
-
-- Postgres database
-- FastAPI API server
-- Grafana monitoring UI
-
-### API endpoints
-
-- `POST /api/question` — submit a user question
-- `POST /api/feedback` — submit feedback for a conversation
-- `GET /api/monitoring` — view recent conversation + feedback records
-
-### Example request
-
-```bash
-curl -X POST http://localhost:5000/api/question \
-  -H 'Content-Type: application/json' \
-  -d '{"message":"What is the deductible for Gold members?","history":[]}'
-```
-
-### Example feedback submission
-
-```bash
-curl -X POST http://localhost:5000/api/feedback \
-  -H 'Content-Type: application/json' \
-  -d '{"question":"What is my deductible?","response":"Your deductible is $500.","rating":"5","conversation_id":1,"source":"ui","score":5}'
-```
-** Note **
-There's a `test_agent.py` file that can also be used to test `/api/question` endpoint.
-
----
-
-## Monitoring and evaluation
-
-- Conversation records, token counts, response time, and cost are stored in Postgres.
-- Feedback records are stored in Postgres and linked to conversation IDs.
-- Grafana is available on port `3000` when running via Docker Compose.
-- The project includes saved example monitoring queries in `main/performance-queries`.
-
-### Monitoring queries
-
-Use the `main/performance-queries` file to inspect:
-
-- recent activity and feedback
-- cost, latency, and token trends
-- model performance
-- slowest and highest-cost calls
-- feedback distribution
-- conversations without feedback
-- correlation of low feedback with cost or latency
-
----
-
-## Deployment notes
-
-### Local Kind cluster
-
-The local Kubernetes manifests are in `kubernetes/local-deployment/`.
-
-### Cloud deployment
-
-The Terraform infrastructure is in `infrastructures/`.
-
-The cloud deployment path includes:
-
-- EC2 instance provisioning
-- ECR repository setup
-- RDS Postgres database
-- IAM roles for EC2 access to RDS and ECR
-- k3s bootstrap script via `infrastructures/modules/ec2/user-data.sh.tpl`
-- Flux and Grafana manifests in `kubernetes/supporting-services/`
-
-### Flux / Traefik / External Secrets
-
-The project includes manifests for:
-
-- Flux OCIRepository and Kustomization
-- Traefik gateway controller
-- External Secrets Operator
-- Grafana deployment and service
+This was done using `jupyter notebook` located at `main/main.ipynb`
 
 ---
 
@@ -318,11 +139,199 @@ The project includes manifests for:
 
 ---
 
-## Notes and next steps
+## Key demo modes
 
-- `README2.md` contains earlier deployment notes and commands; this README is the primary documentation.
-- The codebase includes multiple deployment modes: local, Kind, and cloud k3s.
-- Screenshots and demo videos should be added after recording.
-- Consider adding formal retrieval and prompt evaluation reports for full project evaluation.
+### 1) Local deployment without Kubernetes
+
+Initialize uv within `main`
+
+```bash
+cd main
+uv sync
+```
+
+Ingest the knowledge base:
+
+```bash
+uv run python -c "from app.ingest import add_documents_to_vectorstore; add_documents_to_vectorstore()"
+```
+
+This is the fastest path to run the API locally.
+
+```bash
+uv run uvicorn api:app --host 0.0.0.0 --port 5000 --reload
+```
+Starting the API loads the DB schema automatically, because `main/api.py` runs `initialize_database()` on startup.
+
+This setup will fail since the API depends on PostgreSQL database, which should already be up and running.
+Hence, a better alternative is the local mode explained below.
+
+
+### 2) Local deployment with docker-compose
+
+Start Docker server
+
+Start API, PostgreSQL and Grafana containers using docker-compose.
+Edit the `main/docker-compose.yaml` file to change the API image name accordingly.
+
+```bash
+cd main
+docker-compose up -d
+```
+
+Access the API swagger at `localhost:5000/docs` or send a `GET` request to the healthcheck endpoint at `localhost:5000/api/healthcheck`
+
+Interact with the agent by running the `client` script
+
+```bash
+cd main
+uv run python app/test_agent.py
+```
+
+Enter in your questions and give feedback when prompted to.
+Sample questions can be found at `main/README.md`
+
+Also, saved monitoring data can be viewed on the terminal by running the script...
+
+```bash
+uv run python app/test_monitoring.py  5       # update argument to reflect the number of records you wish to retrieve
+```
+
+Data can also be viewed directly on Grafana. 
+Visit Grafana at `localhost:3000` and login using `admin/admin` as username/password
+
+Click on the `Connection` tab and search for `PostgreSQL` >> Add Data Source >> Enter in connection to PostgreSQL credentials.
+
+When through, stop and remove the containers
+
+```bash
+docker-compose down
+```
+
+Watch demo...
+
+`https://example.com/your-demo-video`
+
+
+### 3) Local deployment with Kind Kubernetes
+
+1. Create a Kind cluster:
+
+```bash
+kind create cluster --name llm-project --config kubernetes/supporting-services/kind/kind-config.yaml
+```
+
+2. Apply local manifests:
+
+```bash
+kubectl apply -f kubernetes/local-deployment/
+```
+
+3. Optionally inspect services:
+
+```bash
+kubectl get pods,svc -n default
+```
+
+4. Visit the API's swagger at `localhost:30080/docs` and Grafana at `localhost:30030`
+
+5. Follow the steps in the `#2 mode` above to run the agent client, ask questions, give feedbacks, and view monitoring data.
+
+** Note **
+`test_agent.py` needs to be updated to contain a new URL for the API.
+
+Watch demo...
+
+`https://example.com/cloud-demo`
+
+
+### 3) Cloud deployment with k3s
+
+The project includes cloud bootstrap support for k3s via Terraform and EC2 user-data.
+
+The EC2 bootstrap script is in:
+- `infrastructures/modules/ec2/user-data.sh.tpl`
+
+The script installs k3s, Traefik, Gateway, External Secrets Operator, Flux, and Grafana.
+
+The infrastructures provisioned with Terrafrom include:
+- EC2 instance to run Kubernetes
+- RDS database to save members data, feedbacks and conversations
+- IAM role for the EC2 instance
+- Networking componenents - VPC, Subnets, Internet gateway, Route Table, Security Groups
+- ECR - to store API Docker images and to serve as an OCI repository for the API manifests.
+
+Follow the steps below to setup the Cloud Infrastructure and environment to deploy the API:
+
+* Create a secret named `healthsecuresecrets` in AWS Secrets Manager.
+
+* Move all environments variables into this secret as JSON. See images below
+
+![AWS Secrets Manager Console](PLACEHOLDER_IMAGE_URL)
+
+===================================================================================================
+
+![Select Secret Type](PLACEHOLDER_IMAGE_URL)
+
+===================================================================================================
+
+![Store Env Variables as JSON](PLACEHOLDER_IMAGE_URL)
+
+* Create an S3 bucket tp serve as Remote backend for Terraform. Details of the bucket can be found
+in Terraform `provisioners.tf` file
+
+* Store the AWS credential for your admin user in GitHub under `Settings` >> `Secrets and Variables` >> `Actions` >> `Repository Secrets`.
+
+These include:
+- AWS_SECRET_ACCESS_KEY
+- AWS_ACCESS_KEY_ID
+- AWS_REGION
+
+* Also store these Terraform variables as well
+- TF_VAR_PASSWORD - any password of your choice. Terraform will use this at the creation of RDS database
+- TF_VAR_PUBLIC_KEY - see below for more...
+
+`TF_VAR_PUBLIC_KEY` can be generated locally and copied as follow:
+
+Run the command
+
+```bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+```
+
+Follow the prompt and enter your path of choice to save the key pair that would be generated
+
+Skip the rest of the prompt
+
+Locate the path where the key pair is stored and open the public key file to copy the key
+
+Enter this key as the value for `TF_VAR_PUBLIC_KEY`. Terraform will save this in the EC2 instance it creates.
+
+* Push repository to GitHub and trigger the CI/CD pipeline - `deploy-infrastructure` to deploy the infrastructures
+
+* Once complete and successful, trigger the second pipeline `deploy-api` to build and push docker image and artifacts to Amazon ECR.
+
+* Run SSH command from your local machine to access the EC2 instance and view the cluster and workloads
+
+```bash
+ssh -i <PATH_TO_SSH_PRIVATE_KEY> ubuntu@<EC2_PUBLIC_IP_ADDRESS>
+```
+
+* View running pods
+
+```bash
+kubectl get po -n api
+```
+
+Watch demo...
+
+`https://example.com/cloud-demo`
+
 
 ---
+
+### API endpoints
+
+- `POST /api/question` — submit a user question
+- `POST /api/feedback` — submit feedback for a conversation
+- `GET /api/monitoring` — view recent conversation + feedback records
