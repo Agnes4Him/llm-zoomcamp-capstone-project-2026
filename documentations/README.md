@@ -267,13 +267,15 @@ Follow the steps below to setup the Cloud Infrastructure and environment to depl
 
 * Move all environments variables into this secret as JSON. See images below
 
+=============================================================================
+
 ![AWS Secrets Manager Console](./images/secrets-manager1.png)
 
-===================================================================================================
+=============================================================================
 
 ![Select Secret Type](./images/secrets-manager2.png)
 
-===================================================================================================
+=============================================================================
 
 ![Store Env Variables as JSON](./images/secrets-manager3.png)
 

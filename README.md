@@ -1,0 +1,1 @@
+Please refer to the path `documentations/README.md` to view the project documentation
