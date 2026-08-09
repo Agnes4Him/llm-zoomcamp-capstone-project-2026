@@ -90,18 +90,18 @@ This is a hybrid solution: an LLM powers the assistant, a vector store enables r
 
 ### 1) Local deployment without Kubernetes
 
+Ingest the knowledge base:
+
+```bash
+cd main
+uv run python -c "from app.ingest import add_documents_to_vectorstore; add_documents_to_vectorstore()"
+```
+
 This is the fastest path to run the API locally.
 
 ```bash
 cd main
 uv run uvicorn api:app --host 0.0.0.0 --port 5000 --reload
-```
-
-Then ingest the knowledge base:
-
-```bash
-cd main
-uv run python -c "from app.ingest import add_documents_to_vectorstore; add_documents_to_vectorstore()"
 ```
 
 Load the DB schema automatically by starting the API, because `main/api.py` runs `initialize_database()` on startup.
@@ -218,7 +218,7 @@ uv run python -c "from app.ingest import add_documents_to_vectorstore; add_docum
 
 ```bash
 cd main
-docker compose up --build
+docker-compose up -d
 ```
 
 This starts:
@@ -248,6 +248,8 @@ curl -X POST http://localhost:5000/api/feedback \
   -H 'Content-Type: application/json' \
   -d '{"question":"What is my deductible?","response":"Your deductible is $500.","rating":"5","conversation_id":1,"source":"ui","score":5}'
 ```
+** Note **
+There's a `test_agent.py` file that can also be used to test `/api/question` endpoint.
 
 ---
 
@@ -324,6 +326,3 @@ The project includes manifests for:
 - Consider adding formal retrieval and prompt evaluation reports for full project evaluation.
 
 ---
-
-## Contact
-For questions or future improvements, update this README with new commands, screenshots, and architecture diagrams.

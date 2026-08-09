@@ -22,7 +22,7 @@ resource "aws_instance" "server" {
   iam_instance_profile = aws_iam_instance_profile.ec2.name
 
   root_block_device {
-    volume_size = 30
+    volume_size = 50
     volume_type = "gp3"
 
     delete_on_termination = true
