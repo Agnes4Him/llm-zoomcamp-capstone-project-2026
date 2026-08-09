@@ -242,7 +242,7 @@ kubectl get pods,svc -n default
 
 Watch demo...
 
-[![Local deployment with K8s demo](https://img.youtube.com/vi/9HTx5U62ojc/0.jpg)](https://www.youtube.com/watch?v=9HTx5U62ojc)
+[![Local deployment with K8s demo](https://img.youtube.com/vi/9HTx5U62ojc/0.jpg)](https://www.youtube.com/watch?v=9HTx5U62ojc)   
 
 
 ### 3) Cloud deployment with k3s
@@ -348,7 +348,7 @@ This will only work if you've configured Terraform to use remote backend
 
 Watch demo...
 
-[![Cloud deployment demo](https://img.youtube.com/vi/VIDEO_ID_3/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_3)
+[![Cloud deployment demo](https://img.youtube.com/vi/AKJWtcf_IvE/0.jpg)](https://www.youtube.com/watch?v=AKJWtcf_IvE)
 
 ---
 
