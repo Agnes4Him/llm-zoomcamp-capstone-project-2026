@@ -208,8 +208,7 @@ When through, stop and remove the containers
 docker-compose down
 ```
 
-Watch demo...
-
+Watch Local Deployment demo...
 [![Local deployment demo](https://img.youtube.com/vi/8-E-FDB6fiM/0.jpg)](https://www.youtube.com/watch?v=8-E-FDB6fiM)
 
 
@@ -240,8 +239,7 @@ kubectl get pods,svc -n default
 ** Note **
 `test_agent.py` needs to be updated to contain a new URL for the API.
 
-Watch demo...
-
+Watch Local Kubernetes deployment demo...
 [![Local deployment with K8s demo](https://img.youtube.com/vi/9HTx5U62ojc/0.jpg)](https://www.youtube.com/watch?v=9HTx5U62ojc)   
 
 
@@ -346,8 +344,7 @@ terraform destroy
 *** Note ***
 This will only work if you've configured Terraform to use remote backend
 
-Watch demo...
-
+Watch Cloud Kubernetes deployment demo...
 [![Cloud deployment demo](https://img.youtube.com/vi/AKJWtcf_IvE/0.jpg)](https://www.youtube.com/watch?v=AKJWtcf_IvE)
 
 ---
