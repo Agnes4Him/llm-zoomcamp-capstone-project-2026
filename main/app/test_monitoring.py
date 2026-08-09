@@ -1,12 +1,12 @@
 import json
 import sys
-
 import requests
 
-API_URL_LOCAL = "http://localhost/api"
+API_URL_LOCAL = "http://localhost:5000/api"
+API_URL_LOCAL_K8S = "http://localhost:30080/api"
 API_URL_CLOUD_K8S = "http://18.175.239.80/api"
 
-API_URL = f"{API_URL_CLOUD_K8S}/monitoring"
+API_URL = f"{API_URL_LOCAL_K8S}/monitoring"
 
 def fetch_monitoring(limit: int) -> dict:
     try:
