@@ -210,7 +210,9 @@ docker-compose down
 
 Watch demo...
 
-`https://example.com/your-demo-video`
+<video src="./videos/local-deployment.mp4" controls width="800">
+  Your browser does not support the video tag.
+</video>
 
 
 ### 3) Local deployment with Kind Kubernetes
@@ -242,7 +244,9 @@ kubectl get pods,svc -n default
 
 Watch demo...
 
-`https://example.com/cloud-demo`
+<video src="./videos/local-deployment-k8s.mp4" controls width="800">
+  Your browser does not support the video tag.
+</video>
 
 
 ### 3) Cloud deployment with k3s
@@ -325,9 +329,32 @@ ssh -i <PATH_TO_SSH_PRIVATE_KEY> ubuntu@<EC2_PUBLIC_IP_ADDRESS>
 kubectl get po -n api
 ```
 
+* Access the API at `<EC2_PUBLIC_IP_ADDRESS>/api/healthcheck` for healthcheck status
+
+* Adjust `test_agent.py` script to use the right URL, and then run the script to interact with the agent
+
+* To delete the AWS resources created for cloud deployment, be sure to authenticate to AWS locally using the credentials created earlier
+
+```bash
+aws configure
+```
+
+* Then navigate to `infrastructures` directory and run the commands:
+
+```bash
+terraform init
+
+terraform destroy
+```
+
+*** Note ***
+This will only work if you've configured Terraform to use remote backend
+
 Watch demo...
 
-`https://example.com/cloud-demo`
+<video src="./videos/cloud-deployment.mp4" controls width="800">
+  Your browser does not support the video tag.
+</video>
 
 
 ---

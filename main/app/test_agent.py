@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 API_URL_LOCAL = "http://localhost:5000/api"
 API_URL_LOCAL_K8S = "http://localhost:30080/api"
-API_URL_CLOUD_K8S = "http://18.175.239.80/api"
+API_URL_CLOUD_K8S = "http://18.171.137.157/api"
 
-API_URL = API_URL_LOCAL_K8S    # Change this to the appropriate URL based on your deployment
+API_URL = API_URL_CLOUD_K8S    # Change this to the appropriate URL based on your deployment
 
 QUESTION_URL = f"{API_URL}/question"
 FEEDBACK_URL = f"{API_URL}/feedback"
